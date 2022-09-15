@@ -40,7 +40,7 @@ class MailWindowController {
         });
 
         // and load the index.html of the app.
-        this.win.loadURL(this.getHomepageUrl());
+        this.win.loadURL(this.getHomepageUrl(), {userAgent: 'Chrome'});
 
         // Show window handler
         ipcMain.on('show', () => {
@@ -77,7 +77,7 @@ class MailWindowController {
                     </center>
                     </body>
                     </html>
-                `));
+                `), {userAgent: 'Chrome'});
             }
         });
 
@@ -185,7 +185,7 @@ class MailWindowController {
                         }
                     });
                 });
-            
+
                 observer.observe(unreadSpan, {childList: true});
 
                 // If the div containing reminders gets taller we probably got a new
@@ -256,7 +256,7 @@ class MailWindowController {
                 nodeIntegration: true
             }
         });
-        this.splashWin.loadURL(`file://${path.join(__dirname, '../view/splash.html')}`);
+        this.splashWin.loadURL(`file://${path.join(__dirname, '../view/splash.html')}`, {userAgent: 'Chrome'});
 
         ipcMain.on('reconnect', () => {
             this.connectToMicrosoft();
