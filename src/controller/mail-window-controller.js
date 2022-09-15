@@ -158,6 +158,12 @@ class MailWindowController {
             setTimeout(() => {
 
                 if (true) {
+                    var unread = document.getElementsByClassName("ZtMcN");
+                    console.log(unread.hasChildNodes())
+                    for(let i=0; i<unread.length; i++){
+                    let isUnread = unread[i].getAttribute("aria-label").startsWith("Unread ");
+                    console.log(isUnread);
+                    }
                 const notifier = require('node-notifier');
                 const NOTIFICATION_TITLE = 'Basic Notification'
                 const NOTIFICATION_BODY = 'Notification from the Main process'
