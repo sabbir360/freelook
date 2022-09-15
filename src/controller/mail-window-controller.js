@@ -59,6 +59,9 @@ class MailWindowController {
             var size = this.win.getSize();
             this.config.set('windowFrameWidth', size[0]);
             this.config.set('windowFrameHeight', size[1]);
+
+
+
         });
 
         this.win.webContents.on('did-navigate', (event, url, httpResponseCode, httpStatusText) => {
@@ -148,31 +151,52 @@ class MailWindowController {
     }
 
     addUnreadNumberObserver() {
+
+
+
         this.config.get('unreadMessageClass') && this.win.webContents.executeJavaScript(`
             setTimeout(() => {
-                let unreadSpan = document.querySelector(".${this.config.get('unreadMessageClass')}");
-                require('electron').ipcRenderer.send('updateUnread', unreadSpan.hasChildNodes());
+
+                if (true) {
+                const notifier = require('node-notifier');
+                const NOTIFICATION_TITLE = 'Basic Notification'
+                const NOTIFICATION_BODY = 'Notification from the Main process'
+                notifier.notify ({
+                    title: NOTIFICATION_TITLE,
+                    message: NOTIFICATION_BODY,
+                    icon: path.join(__dirname, '../../assets/outlook_linux_black.png')
+                    },
+                    function (err, response) {
+                // Response is response from notification
+                    }
+                );
+                 notifier.on('click', function (notifierObject, options) {
+                    console.log("You clicked on the notification")
+                 });
+
+                 notifier.on('timeout', function (notifierObject, options) {
+                    console.log("Notification timed out!")
+                });
+            }
+
+                // let unreadSpan = document.querySelector(".${this.config.get('unreadMessageClass')}");
+                // let unreadSpan = document.getElementsByClassName(".${this.config.get('unreadMessageClass')}");
+                let unreadSpan = document.getElementsByClassName("ZtMcN");
+                let hasChildNode = false;
+                if(unreadSpan.length>0){
+                    hasChildNode = true;
+                }
+                require('electron').ipcRenderer.send('updateUnread', hasChildNode);
 
                 let observer = new MutationObserver(mutations => {
                     mutations.forEach(mutation => {
                         // console.log('Observer Changed.');
-                        require('electron').ipcRenderer.send('updateUnread', unreadSpan.hasChildNodes());
+                        require('electron').ipcRenderer.send('updateUnread', hasChildNode);
 
                         // Scrape messages and pop up a notification
-                        var messages = document.querySelectorAll('div[role="listbox"][aria-label="Message list"]');
-                        if (messages.length)
-                        {
-                            var unread = messages[0].querySelectorAll('div[aria-label^="Unread"]');
-                            var body = "";
-                            for (var i = 0; i < unread.length; i++)
-                            {
-                                if (body.length)
-                                {
-                                    body += "\\n";
-                                }
-                                body += unread[i].getAttribute("aria-label").substring(7, 127);
-                            }
-                            if (unread.length)
+                        for(let i=0; i<unread.length; i++){
+                            let isUnread = unread[i].getAttribute("aria-label").startsWith("Unread ");
+                            if (isUnread)
                             {
                                 var notification = new Notification("Microsoft Outlook - receiving " + unread.length + " NEW mails", {
                                     body: body,
@@ -183,6 +207,7 @@ class MailWindowController {
                                 };
                             }
                         }
+
                     });
                 });
 
